@@ -78,10 +78,40 @@
     render();
   }
 
+  function nativeBiometricAvailable() {
+    try {
+      return Boolean(
+        window.AndroidSecurity &&
+        typeof window.AndroidSecurity.isBiometricAvailable === "function" &&
+        window.AndroidSecurity.isBiometricAvailable()
+      );
+    } catch {
+      return false;
+    }
+  }
+
+  function requestBiometricUnlock() {
+    if (!nativeBiometricAvailable()) return;
+    try {
+      window.AndroidSecurity.authenticateBiometric();
+    } catch {
+      $("#lock-error").textContent = "Fingerprint unlock is unavailable.";
+    }
+  }
+
   function setLocked(locked) {
     state.locked = locked;
     $("#lock-overlay").hidden = !locked;
     $("#app-shell").classList.toggle("is-locked", locked);
+
+    const canUseBiometric =
+      locked &&
+      FolioSecurity.hasPin() &&
+      FolioSecurity.biometricEnabled() &&
+      nativeBiometricAvailable();
+
+    $("#btn-biometric-unlock").hidden = !canUseBiometric;
+
     if (locked) {
       $("#unlock-pin").value = "";
       $("#lock-error").textContent = "";
@@ -91,8 +121,14 @@
 
   function refreshSecurityUi() {
     const enabled = FolioSecurity.hasPin();
+    const biometricAvailable = nativeBiometricAvailable();
+    const biometricEnabled = enabled && FolioSecurity.biometricEnabled();
+
     $("#btn-pin").textContent = enabled ? "Change PIN" : "Set PIN";
     $("#lock-now-row").hidden = !enabled;
+    $("#biometric-row").hidden = !enabled || !biometricAvailable;
+    $("#btn-biometric-toggle").textContent = biometricEnabled ? "Disable" : "Enable";
+    $("#btn-biometric-unlock").hidden = !(state.locked && biometricEnabled && biometricAvailable);
   }
 
   function validPin(pin) {
