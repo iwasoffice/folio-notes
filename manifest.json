@@ -1,7 +1,7 @@
 {
-  "name": "Quill",
-  "short_name": "Quill",
-  "description": "A quiet place for notes, on this device only.",
+  "name": "Folio Notes",
+  "short_name": "Folio",
+  "description": "A private, offline-first place for notes on this device.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
