@@ -204,6 +204,7 @@
   });
 
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applyTheme);
+  window.addEventListener("folio-system-theme-change", applyTheme);
 
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
