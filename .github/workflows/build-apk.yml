@@ -18,7 +18,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
 
     steps:
       - name: Checkout
@@ -41,22 +41,36 @@ jobs:
         with:
           gradle-version: "8.9"
 
-      - name: Bundle Folio Notes web assets
+      - name: Bundle web assets
         run: |
           rm -rf android-app/app/src/main/assets/www
           mkdir -p android-app/app/src/main/assets/www
           cp index.html manifest.json sw.js android-app/app/src/main/assets/www/
           cp -R css js icons android-app/app/src/main/assets/www/
 
-      - name: Build debug APK
+      - name: Build Android test APK
         run: gradle -p android-app :app:assembleDebug --no-daemon
 
-      - name: Prepare download
-        run: cp android-app/app/build/outputs/apk/debug/app-debug.apk folio-notes.apk
+      - name: Prepare APK
+        run: cp android-app/app/build/outputs/apk/debug/app-debug.apk Folio-Notes-v1.0.0-test.apk
 
-      - name: Upload APK
+      - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
         with:
           name: folio-notes-apk
-          path: folio-notes.apk
+          path: Folio-Notes-v1.0.0-test.apk
           if-no-files-found: error
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v1.0.0-test"
+          TITLE="Folio Notes v1.0.0 test build"
+          NOTES="Installable Android test build for device testing. This APK is debug-signed; a release-signed AAB/APK will be used for store distribution."
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" Folio-Notes-v1.0.0-test.apk --clobber
+          else
+            gh release create "$TAG" Folio-Notes-v1.0.0-test.apk               --title "$TITLE"               --notes "$NOTES"               --prerelease               --target "$GITHUB_SHA"
+          fi
