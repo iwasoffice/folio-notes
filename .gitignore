@@ -1,6 +1,7 @@
 node_modules/
-android/
-ios/
 .DS_Store
 dist/
 *.log
+.gradle/
+**/build/
+local.properties
