@@ -8,6 +8,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
@@ -27,7 +28,11 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
 
         webView = new WebView(this);
-        webView.setBackgroundColor(isSystemDarkMode() ? Color.rgb(22, 20, 17) : Color.rgb(243, 236, 226));
+        webView.setBackgroundColor(
+            isSystemDarkMode()
+                ? Color.rgb(22, 20, 17)
+                : Color.rgb(243, 236, 226)
+        );
         setContentView(webView);
 
         WebSettings settings = webView.getSettings();
@@ -42,18 +47,21 @@ public class MainActivity extends FragmentActivity {
         webView.setWebViewClient(new WebViewClient());
 
         setupBiometricPrompt();
+        setupBackNavigation();
         webView.loadUrl("file:///android_asset/www/index.html");
     }
 
     private boolean isSystemDarkMode() {
-        int nightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        int nightMode =
+            getResources().getConfiguration().uiMode
+                & Configuration.UI_MODE_NIGHT_MASK;
         return nightMode == Configuration.UI_MODE_NIGHT_YES;
     }
 
     private boolean isBiometricAvailable() {
         int authenticators =
-            BiometricManager.Authenticators.BIOMETRIC_STRONG |
-            BiometricManager.Authenticators.BIOMETRIC_WEAK;
+            BiometricManager.Authenticators.BIOMETRIC_STRONG
+                | BiometricManager.Authenticators.BIOMETRIC_WEAK;
 
         return BiometricManager.from(this).canAuthenticate(authenticators)
             == BiometricManager.BIOMETRIC_SUCCESS;
@@ -61,6 +69,7 @@ public class MainActivity extends FragmentActivity {
 
     private void setupBiometricPrompt() {
         Executor executor = ContextCompat.getMainExecutor(this);
+
         biometricPrompt = new BiometricPrompt(
             this,
             executor,
@@ -81,14 +90,17 @@ public class MainActivity extends FragmentActivity {
                     super.onAuthenticationError(errorCode, errString);
 
                     if (
-                        errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON ||
-                        errorCode == BiometricPrompt.ERROR_USER_CANCELED ||
-                        errorCode == BiometricPrompt.ERROR_CANCELED
+                        errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON
+                            || errorCode == BiometricPrompt.ERROR_USER_CANCELED
+                            || errorCode == BiometricPrompt.ERROR_CANCELED
                     ) {
                         return;
                     }
 
-                    sendBiometricResult(false, "Fingerprint authentication was not completed.");
+                    sendBiometricResult(
+                        false,
+                        "Fingerprint authentication was not completed."
+                    );
                 }
             }
         );
@@ -96,13 +108,16 @@ public class MainActivity extends FragmentActivity {
 
     private void showBiometricPrompt() {
         if (!isBiometricAvailable()) {
-            sendBiometricResult(false, "Fingerprint unlock is unavailable on this device.");
+            sendBiometricResult(
+                false,
+                "Fingerprint unlock is unavailable on this device."
+            );
             return;
         }
 
         int authenticators =
-            BiometricManager.Authenticators.BIOMETRIC_STRONG |
-            BiometricManager.Authenticators.BIOMETRIC_WEAK;
+            BiometricManager.Authenticators.BIOMETRIC_STRONG
+                | BiometricManager.Authenticators.BIOMETRIC_WEAK;
 
         BiometricPrompt.PromptInfo promptInfo =
             new BiometricPrompt.PromptInfo.Builder()
@@ -120,10 +135,42 @@ public class MainActivity extends FragmentActivity {
 
         String safeMessage = JSONObject.quote(message == null ? "" : message);
         String script =
-            "window.dispatchEvent(new CustomEvent('folio-biometric-result'," +
-            "{detail:{success:" + success + ",message:" + safeMessage + "}}));";
+            "window.dispatchEvent(new CustomEvent('folio-biometric-result',"
+                + "{detail:{success:"
+                + success
+                + ",message:"
+                + safeMessage
+                + "}}));";
 
         webView.evaluateJavascript(script, null);
+    }
+
+    private void setupBackNavigation() {
+        getOnBackPressedDispatcher().addCallback(
+            this,
+            new OnBackPressedCallback(true) {
+                @Override
+                public void handleOnBackPressed() {
+                    handleBackNavigation();
+                }
+            }
+        );
+    }
+
+    private void handleBackNavigation() {
+        if (webView == null) {
+            moveTaskToBack(true);
+            return;
+        }
+
+        webView.evaluateJavascript(
+            "Boolean(window.FolioHandleBack && window.FolioHandleBack())",
+            result -> {
+                if (!"true".equals(result)) {
+                    moveTaskToBack(true);
+                }
+            }
+        );
     }
 
     private class AndroidThemeBridge {
@@ -161,23 +208,6 @@ public class MainActivity extends FragmentActivity {
                 null
             );
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (webView == null) {
-            finish();
-            return;
-        }
-
-        webView.evaluateJavascript(
-            "Boolean(window.FolioHandleBack && window.FolioHandleBack())",
-            result -> {
-                if (!"true".equals(result)) {
-                    finish();
-                }
-            }
-        );
     }
 
     @Override
