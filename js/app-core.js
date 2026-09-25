@@ -22,9 +22,20 @@
     editor: $("#screen-editor")
   };
 
+  function systemPrefersDark() {
+    try {
+      if (window.AndroidTheme && typeof window.AndroidTheme.isDarkMode === "function") {
+        return Boolean(window.AndroidTheme.isDarkMode());
+      }
+    } catch {
+      // Fall back to the browser media query.
+    }
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+
   function applyTheme() {
     const pref = state.settings.theme;
-    const dark = pref === "dark" || (pref === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    const dark = pref === "dark" || (pref === "system" && systemPrefersDark());
     document.documentElement.dataset.theme = dark ? "dark" : "light";
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute("content", dark ? "#161411" : "#C45C26");
