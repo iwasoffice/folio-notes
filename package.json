@@ -2,7 +2,7 @@
   "name": "folio-notes",
   "version": "1.0.0",
   "private": true,
-  "description": "Quill — offline-first personal notes app",
+  "description": "Folio Notes — offline-first personal notes app",
   "scripts": {
     "start": "python3 -m http.server 4173",
     "cap:init": "npx @capacitor/cli@6 init Folio Notes com.folio.notes --web-dir .",
