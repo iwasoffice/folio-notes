@@ -1,34 +1,45 @@
 # Folio Notes
 
-Folio Notes is a private, offline-first notes app for web/PWA and Android.
+Folio Notes is a private, offline-first notes app for web and Android. It is designed for fast personal note-taking without requiring an account or cloud connection.
 
-## Core features
+## Features
 
 - Light, dark, and system themes
 - Offline local note storage
-- Autosave with save status
-- Pin, archive, Trash, restore, and 30-day Trash cleanup
+- Automatic saving with save status
+- Pin and archive notes
+- Trash, restore, and 30-day trash cleanup
 - Folder organization and search
 - Note colors and sorting
-- JSON backup export/import, including appearance and sort settings
+- JSON backup export and import
 - Optional local PIN screen lock
-- PWA install support
-- Android APK build through GitHub Actions
+- Progressive Web App support
+- Android application package
 
-## GitHub repo
+## Run locally
 
-https://github.com/iwasoffice/folio-notes
+Serve the repository as a static site:
 
-## Web preview
+```bash
+python3 -m http.server 4173
+```
 
-The repository can be deployed as a static site. The existing Vercel account is not modified by automated work in this repository.
+Then open `http://localhost:4173`.
 
-## Android APK
+## Android
 
-The workflow in `.github/workflows/build-apk.yml` builds the Android WebView wrapper and uploads `folio-notes.apk` as a GitHub Actions artifact.
+Android source is in `android-app/`.
 
-Package ID: `com.folio.notes`
+Package ID:
+
+```
+com.folio.notes
+```
+
+Installable test APKs are published from the repository's Releases page. Production store builds should use a release signing key and Android App Bundle (AAB).
 
 ## Privacy
 
-Notes are stored on the device. The optional PIN is a local screen lock and does not encrypt note data.
+Notes are stored locally on the device. Folio Notes does not require an account.
+
+The optional PIN is a local screen lock. It is not a substitute for encrypted device storage.
