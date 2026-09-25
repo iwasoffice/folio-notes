@@ -1,24 +1,34 @@
 # Folio Notes
 
-Offline-first notes PWA.
+Folio Notes is a private, offline-first notes app for web/PWA and Android.
 
-## Live preview
+## Core features
 
-https://folio-notes-nine.vercel.app
+- Light, dark, and system themes
+- Offline local note storage
+- Autosave with save status
+- Pin, archive, Trash, restore, and 30-day Trash cleanup
+- Folder organization and search
+- Note colors and sorting
+- JSON backup export/import, including appearance and sort settings
+- Optional local PIN screen lock
+- PWA install support
+- Android APK build through GitHub Actions
 
 ## GitHub repo
 
 https://github.com/iwasoffice/folio-notes
 
-## Phone install (no APK needed)
+## Web preview
 
-Android Chrome: open the live URL, then menu → Install app.  
-iPhone Safari: open the live URL, then Share → Add to Home Screen.
+The repository can be deployed as a static site. The existing Vercel account is not modified by automated work in this repository.
 
 ## Android APK
 
-This package does not contain a compiled `.apk`. Build one at https://www.pwabuilder.com using the live URL above. See `HOW_TO_GET_APK.md`.
+The workflow in `.github/workflows/build-apk.yml` builds the Android WebView wrapper and uploads `folio-notes.apk` as a GitHub Actions artifact.
 
-## Deploy from GitHub to Vercel
+Package ID: `com.folio.notes`
 
-See `CHATGPT_GITHUB_VERCEL.md` and `VERCEL_INSTRUCTIONS.md`.
+## Privacy
+
+Notes are stored on the device. The optional PIN is a local screen lock and does not encrypt note data.
