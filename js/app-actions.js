@@ -156,6 +156,21 @@
 
   $("#btn-pin").addEventListener("click", openPinDialog);
   $("#btn-lock-now").addEventListener("click", () => setLocked(true));
+
+  $("#btn-biometric-toggle").addEventListener("click", () => {
+    if (!FolioSecurity.hasPin()) return;
+    if (!nativeBiometricAvailable()) {
+      toast("Fingerprint unlock is unavailable on this device");
+      return;
+    }
+
+    const next = !FolioSecurity.biometricEnabled();
+    FolioSecurity.setBiometricEnabled(next);
+    refreshSecurityUi();
+    toast(next ? "Fingerprint unlock enabled" : "Fingerprint unlock disabled");
+  });
+
+  $("#btn-biometric-unlock").addEventListener("click", requestBiometricUnlock);
   $("#btn-unlock").addEventListener("click", unlock);
   $("#unlock-pin").addEventListener("keydown", (e) => {
     if (e.key === "Enter") unlock();
@@ -205,6 +220,40 @@
 
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applyTheme);
   window.addEventListener("folio-system-theme-change", applyTheme);
+
+  window.addEventListener("folio-biometric-result", (event) => {
+    const detail = event.detail || {};
+    if (detail.success) {
+      $("#lock-error").textContent = "";
+      setLocked(false);
+      return;
+    }
+    if (detail.message) $("#lock-error").textContent = detail.message;
+  });
+
+  window.FolioHandleBack = () => {
+    const pinDialog = $("#pin-dialog");
+    if (pinDialog && pinDialog.open) {
+      pinDialog.close();
+      return true;
+    }
+
+    if (state.locked) return false;
+
+    if (state.view === "editor") {
+      leaveEditor();
+      return true;
+    }
+
+    if (state.view !== "notes") {
+      state.folder = "all";
+      show("notes");
+      render();
+      return true;
+    }
+
+    return false;
+  };
 
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
