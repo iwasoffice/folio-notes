@@ -1,4 +1,4 @@
-const CACHE = "folio-notes-v1";
+const CACHE = "folio-notes-v2";
 const ASSETS = [
   "./",
   "./index.html",
@@ -31,8 +31,10 @@ self.addEventListener("fetch", (event) => {
     caches.match(event.request).then((cached) => {
       const fetched = fetch(event.request)
         .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((cache) => cache.put(event.request, copy));
+          if (res && res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((cache) => cache.put(event.request, copy));
+          }
           return res;
         })
         .catch(() => cached);
