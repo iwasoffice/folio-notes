@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace 'com.folio.notes'
+    namespace 'com.iwasoffice.folionotes'
     compileSdk 35
 
     signingConfigs {
@@ -16,11 +16,11 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.folio.notes"
+        applicationId "com.iwasoffice.folionotes"
         minSdk 23
         targetSdk 35
-        versionCode 3
-        versionName "1.0.2"
+        versionCode 4
+        versionName "1.0.3"
     }
 
     buildTypes {
