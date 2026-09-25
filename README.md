@@ -18,7 +18,7 @@ Folio Notes is a private, offline-first notes app for web and Android. It is des
 
 ## Android download
 
-[Download Folio Notes v1.0.0 test APK](https://github.com/iwasoffice/folio-notes/releases/download/v1.0.0-test/Folio-Notes-v1.0.0-test.apk)
+[Download Folio Notes v1.0.1 test APK](https://github.com/iwasoffice/folio-notes/releases/download/v1.0.1-test/Folio-Notes-v1.0.1-test.apk)
 
 The current APK is intended for device testing. Production store distribution will use a release-signed APK/AAB.
 
