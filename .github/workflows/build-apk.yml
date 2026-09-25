@@ -1,0 +1,62 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "android-app/**"
+      - "index.html"
+      - "manifest.json"
+      - "sw.js"
+      - "css/**"
+      - "js/**"
+      - "icons/**"
+      - ".github/workflows/build-apk.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android 35 SDK
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Bundle Folio Notes web assets
+        run: |
+          rm -rf android-app/app/src/main/assets/www
+          mkdir -p android-app/app/src/main/assets/www
+          cp index.html manifest.json sw.js android-app/app/src/main/assets/www/
+          cp -R css js icons android-app/app/src/main/assets/www/
+
+      - name: Build debug APK
+        run: gradle -p android-app :app:assembleDebug --no-daemon
+
+      - name: Prepare download
+        run: cp android-app/app/build/outputs/apk/debug/app-debug.apk folio-notes.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: folio-notes-apk
+          path: folio-notes.apk
+          if-no-files-found: error
