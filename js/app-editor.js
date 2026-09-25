@@ -1,7 +1,8 @@
   function show(view) {
     state.view = view;
     Object.entries(screens).forEach(([k, el]) => el.classList.toggle("active", k === view));
-    $$(".tab").forEach((t) => t.classList.toggle("active", t.dataset.view === view));
+    $(".tab").forEach((t) => t.classList.toggle("active", t.dataset.view === view));
+    $(".tabs").hidden = view === "editor";
     $("#fab").hidden = view === "editor" || view === "settings" || view === "trash";
   }
 
