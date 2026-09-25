@@ -2,6 +2,7 @@ const STORAGE_KEY = "folio.notes.v1";
 const SETTINGS_KEY = "folio.settings.v1";
 const META_KEY = "folio.meta.v2";
 const SECURITY_KEY = "folio.security.v1";
+const SAMPLE_MIGRATION_KEY = "folio.migration.samples.v1";
 
 const FolioStore = (() => {
   const defaults = { theme: "system", sort: "updated" };
@@ -51,47 +52,44 @@ const FolioStore = (() => {
     updatedAt: n.updatedAt || new Date().toISOString()
   });
 
-  const seedIfNeeded = () => {
-    const existing = read().map(normalize);
-    const meta = readJson(META_KEY, {});
+  const removeLegacySamples = () => {
+    if (localStorage.getItem(SAMPLE_MIGRATION_KEY) === "done") return;
 
-    if (meta.initialized || existing.length) {
-      if (!meta.initialized) markInitialized();
-      if (existing.length) write(existing);
-      return existing;
-    }
-
-    const now = new Date().toISOString();
-    const seeded = [
+    const legacySamples = [
       {
-        id: uid(),
-        title: "Welcome to Folio Notes",
-        body: "A quiet place for thoughts.\n\n• Tap + to write a note\n• Pin the ones that matter\n• Organize with folders\n• Search from the top\n• Works offline on your home screen\n\nYour notes stay on this device.",
-        color: "sienna",
-        folder: "Getting Started",
-        pinned: true,
-        archived: false,
-        deletedAt: null,
-        createdAt: now,
-        updatedAt: now
+        title: "Welcome to Quill",
+        body: "A quiet place for thoughts.\n\n• Tap + to write a note\n• Pin the ones that matter\n• Search from the top\n• Works offline on your home screen\n\nYour notes stay on this device."
       },
       {
-        id: uid(),
+        title: "Welcome to Folio Notes",
+        body: "A quiet place for thoughts.\n\n• Tap + to write a note\n• Pin the ones that matter\n• Organize with folders\n• Search from the top\n• Works offline on your home screen\n\nYour notes stay on this device."
+      },
+      {
         title: "Sunday market list",
-        body: "Sourdough\nBlood oranges\nGreen olives\nOat milk\nA bunch of rosemary",
-        color: "sage",
-        folder: "Personal",
-        pinned: false,
-        archived: false,
-        deletedAt: null,
-        createdAt: now,
-        updatedAt: now
+        body: "Sourdough\nBlood oranges\nGreen olives\nOat milk\nA bunch of rosemary"
       }
     ];
 
-    write(seeded);
+    const notes = read();
+    const cleaned = notes.filter((note) => {
+      const untouched = note.createdAt && note.updatedAt && note.createdAt === note.updatedAt;
+      if (!untouched) return true;
+
+      return !legacySamples.some(
+        (sample) => note.title === sample.title && note.body === sample.body
+      );
+    });
+
+    if (cleaned.length !== notes.length) write(cleaned);
+    localStorage.setItem(SAMPLE_MIGRATION_KEY, "done");
+  };
+
+  const loadNotes = () => {
+    removeLegacySamples();
+    const notes = read().map(normalize);
+    if (notes.length) write(notes);
     markInitialized();
-    return seeded;
+    return notes;
   };
 
   const purgeExpiredTrash = (days = 30) => {
@@ -105,7 +103,7 @@ const FolioStore = (() => {
   return {
     all() {
       purgeExpiredTrash(30);
-      return seedIfNeeded();
+      return loadNotes();
     },
     saveAll(notes) {
       write(notes.map(normalize));
