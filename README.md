@@ -12,13 +12,13 @@ Folio Notes is a private, offline-first notes app for web and Android. It is des
 - Folder organization and search
 - Note colors and sorting
 - JSON backup export and import
-- Optional local PIN screen lock
+- Optional local PIN screen lock with fingerprint/biometric unlock on supported Android devices
 - Progressive Web App support
 - Android application package
 
 ## Android download
 
-[Download Folio Notes v1.0.3 test APK](https://github.com/iwasoffice/folio-notes/releases/download/v1.0.3-test/Folio-Notes-v1.0.3-test.apk)
+[Download Folio Notes v1.0.4 test APK](https://github.com/iwasoffice/folio-notes/releases/download/v1.0.4-test/Folio-Notes-v1.0.4-test.apk)
 
 The current APK is intended for device testing. Production store distribution will use a release-signed APK/AAB.
 
