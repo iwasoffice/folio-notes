@@ -6,31 +6,43 @@
   <meta name="theme-color" content="#C45C26" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Quill" />
-  <title>Quill</title>
+  <meta name="apple-mobile-web-app-title" content="Folio Notes" />
+  <title>Folio Notes</title>
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
   <link rel="icon" href="./icons/icon-192.png" />
   <link rel="stylesheet" href="./css/styles.css" />
 </head>
 <body>
-  <div class="app">
+  <div class="app" id="app-shell">
     <section id="screen-notes" class="screen active">
-      <header class="topbar"><h1>Quill</h1></header>
+      <header class="topbar"><h1>Folio Notes</h1></header>
       <div class="search-wrap">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-        <input class="search" id="search-notes" type="search" placeholder="Search notes" enterkeyhint="search" />
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input class="search" id="search-notes" type="search" placeholder="Search notes" enterkeyhint="search" aria-label="Search notes" />
       </div>
+      <div class="folder-strip" id="folder-filter-notes" aria-label="Filter notes by folder"></div>
       <div class="list" id="notes-list"></div>
     </section>
 
     <section id="screen-archive" class="screen">
       <header class="topbar"><h1>Archive</h1></header>
       <div class="search-wrap">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-        <input class="search" id="search-archive" type="search" placeholder="Search archive" />
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input class="search" id="search-archive" type="search" placeholder="Search archive" aria-label="Search archive" />
       </div>
+      <div class="folder-strip" id="folder-filter-archive" aria-label="Filter archive by folder"></div>
       <div class="list" id="archive-list"></div>
+    </section>
+
+    <section id="screen-trash" class="screen">
+      <header class="topbar"><h1>Trash</h1></header>
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input class="search" id="search-trash" type="search" placeholder="Search trash" aria-label="Search trash" />
+      </div>
+      <p class="screen-hint">Deleted notes are removed permanently after 30 days.</p>
+      <div class="list" id="trash-list"></div>
     </section>
 
     <section id="screen-settings" class="screen">
@@ -38,14 +50,14 @@
       <div class="settings">
         <div class="group">
           <label class="row">Theme
-            <select id="theme-select">
+            <select id="theme-select" aria-label="Theme">
               <option value="system">System</option>
               <option value="light">Light</option>
               <option value="dark">Dark</option>
             </select>
           </label>
           <label class="row">Sort notes
-            <select id="sort-select">
+            <select id="sort-select" aria-label="Sort notes">
               <option value="updated">Last edited</option>
               <option value="created">Date created</option>
               <option value="title">Title</option>
@@ -53,63 +65,115 @@
           </label>
         </div>
         <div class="group">
+          <div class="row"><span>App lock</span><button id="btn-pin" type="button">Set PIN</button></div>
+          <div class="row" id="lock-now-row" hidden><span>Lock Folio Notes</span><button id="btn-lock-now" type="button">Lock now</button></div>
+        </div>
+        <p class="hint tight">PIN lock protects the app screen on this device. It does not encrypt note data.</p>
+        <div class="group">
           <div class="row"><span>Export backup</span><button id="btn-export" type="button">Download</button></div>
           <div class="row"><span>Import backup</span><button id="btn-import" type="button">Choose file</button></div>
           <div class="row"><span>Clear all notes</span><button id="btn-clear" type="button">Clear</button></div>
         </div>
         <p class="hint" id="count-line"></p>
-        <p class="hint">Quill stores notes only on this device. Add it to your home screen for an app-like experience.</p>
+        <p class="hint">Folio Notes stores notes only on this device. Add it to your home screen for an app-like experience.</p>
       </div>
     </section>
 
     <section id="screen-editor" class="screen">
       <div class="editor-bar">
         <button class="ghost" id="btn-back" type="button">Back</button>
+        <span class="save-status" id="save-status" role="status" aria-live="polite">Saved</span>
         <div class="editor-actions">
-          <button class="icon-btn" id="btn-pin" type="button" title="Pin" aria-label="Pin">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 17v5M8 3l8 4-2 6H10L8 3z"/></svg>
+          <button class="icon-btn" id="btn-pin-note" type="button" title="Pin" aria-label="Pin note">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 17v5M8 3l8 4-2 6H10L8 3z"/></svg>
           </button>
-          <button class="icon-btn" id="btn-archive" type="button" title="Archive" aria-label="Archive">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M9 14h6"/></svg>
+          <button class="icon-btn" id="btn-archive" type="button" title="Archive" aria-label="Archive note">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M9 14h6"/></svg>
           </button>
-          <button class="icon-btn" id="btn-delete" type="button" title="Delete" aria-label="Delete">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>
+          <button class="icon-btn" id="btn-restore" type="button" title="Restore" aria-label="Restore note" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v6h6"/></svg>
+          </button>
+          <button class="icon-btn" id="btn-delete" type="button" title="Move to Trash" aria-label="Move note to Trash">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>
           </button>
         </div>
       </div>
-      <input class="title-input" id="note-title" placeholder="Title" maxlength="120" />
-      <div class="color-row">
-        <button class="swatch parchment on" data-color="parchment" type="button" aria-label="Parchment"></button>
-        <button class="swatch sienna" data-color="sienna" type="button" aria-label="Sienna"></button>
-        <button class="swatch sage" data-color="sage" type="button" aria-label="Sage"></button>
-        <button class="swatch ink" data-color="ink" type="button" aria-label="Ink"></button>
-        <button class="swatch gold" data-color="gold" type="button" aria-label="Gold"></button>
-        <button class="swatch rose" data-color="rose" type="button" aria-label="Rose"></button>
+      <input class="title-input" id="note-title" placeholder="Title" maxlength="120" aria-label="Note title" />
+      <div class="note-tools" id="note-tools">
+        <input class="folder-input" id="note-folder" list="folder-options" placeholder="Folder (optional)" maxlength="40" aria-label="Note folder" />
+        <datalist id="folder-options"></datalist>
+        <div class="color-row" aria-label="Note color">
+          <button class="swatch parchment on" data-color="parchment" type="button" aria-label="Parchment"></button>
+          <button class="swatch sienna" data-color="sienna" type="button" aria-label="Sienna"></button>
+          <button class="swatch sage" data-color="sage" type="button" aria-label="Sage"></button>
+          <button class="swatch ink" data-color="ink" type="button" aria-label="Ink"></button>
+          <button class="swatch gold" data-color="gold" type="button" aria-label="Gold"></button>
+          <button class="swatch rose" data-color="rose" type="button" aria-label="Rose"></button>
+        </div>
       </div>
-      <textarea class="body-input" id="note-body" placeholder="Write something worth keeping…"></textarea>
+      <textarea class="body-input" id="note-body" placeholder="Write something worth keeping…" aria-label="Note body"></textarea>
     </section>
 
     <button class="fab" id="fab" type="button" aria-label="New note">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
     </button>
 
-    <nav class="tabs">
+    <nav class="tabs" aria-label="Main navigation">
       <button class="tab active" data-view="notes" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4h9l5 5v11H6z"/><path d="M15 4v5h5"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 4h9l5 5v11H6z"/><path d="M15 4v5h5"/></svg>
         Notes
       </button>
       <button class="tab" data-view="archive" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>
         Archive
       </button>
+      <button class="tab" data-view="trash" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>
+        Trash
+      </button>
       <button class="tab" data-view="settings" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H8a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V8c.3.6.9 1 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H8a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V8c.3.6.9 1 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
         Settings
       </button>
     </nav>
-    <div class="toast" id="toast" role="status"></div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <input id="file-import" type="file" accept="application/json" hidden />
+
+    <div class="lock-overlay" id="lock-overlay" hidden>
+      <div class="lock-card">
+        <div class="lock-mark" aria-hidden="true">F</div>
+        <h2>Folio Notes is locked</h2>
+        <p>Enter your PIN to continue.</p>
+        <input id="unlock-pin" class="pin-input" type="password" inputmode="numeric" autocomplete="current-password" maxlength="8" pattern="[0-9]*" placeholder="PIN" aria-label="PIN" />
+        <button id="btn-unlock" class="primary-btn" type="button">Unlock</button>
+        <p class="lock-error" id="lock-error" role="alert"></p>
+      </div>
+    </div>
+
+    <dialog id="pin-dialog" class="pin-dialog">
+      <form method="dialog" id="pin-form">
+        <h2 id="pin-dialog-title">Set app PIN</h2>
+        <p class="dialog-copy">Use 4–8 digits. This PIN is stored only on this device.</p>
+        <label id="current-pin-wrap" hidden>Current PIN
+          <input id="current-pin" class="pin-input" type="password" inputmode="numeric" maxlength="8" pattern="[0-9]*" autocomplete="current-password" />
+        </label>
+        <label>New PIN
+          <input id="new-pin" class="pin-input" type="password" inputmode="numeric" maxlength="8" pattern="[0-9]*" autocomplete="new-password" />
+        </label>
+        <label>Confirm PIN
+          <input id="confirm-pin" class="pin-input" type="password" inputmode="numeric" maxlength="8" pattern="[0-9]*" autocomplete="new-password" />
+        </label>
+        <p class="lock-error" id="pin-error" role="alert"></p>
+        <div class="dialog-actions">
+          <button class="ghost" value="cancel" type="button" id="btn-pin-cancel">Cancel</button>
+          <button class="primary-btn" value="default" type="submit">Save PIN</button>
+        </div>
+        <button class="danger-link" id="btn-remove-pin" type="button" hidden>Remove app lock</button>
+      </form>
+    </dialog>
   </div>
+
   <script src="./js/storage.js"></script>
   <script src="./js/app.js"></script>
 </body>
