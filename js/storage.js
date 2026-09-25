@@ -239,9 +239,23 @@ const FolioSecurity = (() => {
       return Boolean(sec && sec.salt && sec.hash);
     },
     async setPin(pin) {
+      const current = read() || {};
       const salt = randomSalt();
       const pinHash = await hash(pin, salt);
-      localStorage.setItem(SECURITY_KEY, JSON.stringify({ salt, hash: pinHash }));
+      localStorage.setItem(
+        SECURITY_KEY,
+        JSON.stringify({ salt, hash: pinHash, biometricEnabled: Boolean(current.biometricEnabled) })
+      );
+    },
+    biometricEnabled() {
+      const sec = read();
+      return Boolean(sec && sec.biometricEnabled);
+    },
+    setBiometricEnabled(enabled) {
+      const sec = read();
+      if (!sec || !sec.salt || !sec.hash) return false;
+      localStorage.setItem(SECURITY_KEY, JSON.stringify({ ...sec, biometricEnabled: Boolean(enabled) }));
+      return true;
     },
     async verify(pin) {
       const sec = read();
