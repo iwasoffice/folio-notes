@@ -52,25 +52,25 @@ jobs:
         run: gradle -p android-app :app:assembleDebug --no-daemon
 
       - name: Prepare APK
-        run: cp android-app/app/build/outputs/apk/debug/app-debug.apk Folio-Notes-v1.0.3-test.apk
+        run: cp android-app/app/build/outputs/apk/debug/app-debug.apk Folio-Notes-v1.0.4-test.apk
 
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
         with:
           name: folio-notes-apk
-          path: Folio-Notes-v1.0.3-test.apk
+          path: Folio-Notes-v1.0.4-test.apk
           if-no-files-found: error
 
       - name: Publish GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="v1.0.3-test"
-          TITLE="Folio Notes v1.0.3 test build"
-          NOTES="Test build using the permanent Android package ID com.iwasoffice.folionotes, with stable test signing, Android System dark mode support, and no bundled sample notes."
+          TAG="v1.0.4-test"
+          TITLE="Folio Notes v1.0.4 test build"
+          NOTES="Test build adding Android back/gesture navigation, a refined editor toolbar, and fingerprint/biometric unlock for App Lock."
 
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" Folio-Notes-v1.0.3-test.apk --clobber
+            gh release upload "$TAG" Folio-Notes-v1.0.4-test.apk --clobber
           else
-            gh release create "$TAG" Folio-Notes-v1.0.3-test.apk               --title "$TITLE"               --notes "$NOTES"               --prerelease               --target "$GITHUB_SHA"
+            gh release create "$TAG" Folio-Notes-v1.0.4-test.apk               --title "$TITLE"               --notes "$NOTES"               --prerelease               --target "$GITHUB_SHA"
           fi
