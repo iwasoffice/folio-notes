@@ -4,9 +4,6 @@
   "private": true,
   "description": "Folio Notes — offline-first personal notes app",
   "scripts": {
-    "start": "python3 -m http.server 4173",
-    "cap:init": "npx @capacitor/cli@6 init Folio Notes com.folio.notes --web-dir .",
-    "cap:android": "npx @capacitor/cli@6 add android && npx @capacitor/cli@6 sync",
-    "cap:ios": "npx @capacitor/cli@6 add ios && npx @capacitor/cli@6 sync"
+    "start": "python3 -m http.server 4173"
   }
 }
